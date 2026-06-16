@@ -3,18 +3,15 @@ server:
 spring:
   application:
     name: api-gateway
-  profiles:
-    active:
-      - dev
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8080/auth-service
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
   data:
     redis:
       host: localhost
-      port: 6371
+      port: 6379
   cloud:
     gateway:
       default-filters:
@@ -26,24 +23,30 @@ spring:
         - id: account-service
           uri: lb://ACCOUNT-SERVICE
           predicates:
-            - Path=/api/account/**
+            - Path=/api/accounts/**
           filters:
             - StripPrefix=1
         - id: transaction-service
           uri: lb://TRANSACTION-SERVICE
           predicates:
-            - Path=/api/transaction/**
+            - Path=/api/transactions/**
           filters:
             - StripPrefix=1
             - name: CircuitBreaker
               args:
                 name: transactionCB
-                fallbackUri: forward:/fallback
+                fallbackUri: forward:/fallback/transaction
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/auth/**
-            - Path=/oauth2/**
+            - Path=/auth/**,/oauth2/**
+          filters:
+            - StripPrefix=1  
+            
+         - id: customer-service
+          uri: lb://CUSTOMER-SERVICE
+          predicates:
+            - Path=/api/customers/**, /api/kyc/**
           filters:
             - StripPrefix=1
 eureka:
