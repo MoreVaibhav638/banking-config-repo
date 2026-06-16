@@ -31,9 +31,9 @@ spring:
           starttls:
             enable: true 
 twilio:
-  sid: ACa6e26ef12b99657f09c46dc8cd4e0ab5
-  token: 97bdf14b0d18786ccd77b799a5654ff6
-  number: +17745007982
+  sid: 
+  token: 
+  number:
 eureka:
   client:
     service-url:
