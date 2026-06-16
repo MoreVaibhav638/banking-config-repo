@@ -4,7 +4,7 @@ spring:
   application:
     name: api-gateway
   profiles:
-    active: default
+    active:
       - dev
   security:
     oauth2:
@@ -23,26 +23,29 @@ spring:
             redis-rate-limiter.replenishRate: 5
             redis-rate-limiter.burstCapacity: 10
       routes:
-      - id: accouct service
-        url:  Ib://ACCOUNT-SERVICE
-        predicates:
-          - Path=/api/account/**
-        filters:
-          - StripPrefix=1
-      - id: transection-service
-        url: Ib://TRANSACTION-SERVICE
-          - StripPrefix=1
-          - name: CircuitBreaker
-            args:
-              name: transactionCB
-      - id: auth-service
+        - id: account-service
+          uri: lb://ACCOUNT-SERVICE
+          predicates:
+            - Path=/api/account/**
+          filters:
+            - StripPrefix=1
+        - id: transaction-service
+          uri: lb://TRANSACTION-SERVICE
+          predicates:
+            - Path=/api/transaction/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: transactionCB
+                fallbackUri: forward:/fallback
+        - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
             - Path=/auth/**
             - Path=/oauth2/**
           filters:
             - StripPrefix=1
-              fallbackUri: forward:/fallback
 eureka:
   client:
     serviceUrl: http://localhost:8761/eureka
